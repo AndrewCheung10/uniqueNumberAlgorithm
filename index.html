@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>10000 unique random number algorithm</title>
+	<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+</head>
+<body>
+	</script>
+	<h1>Approach 1</h1>
+	<h2>Loop all the numbers, get a random index r in [0,n) every time, and swap the current number and the number at index r</h2>
+	<pre class="prettyprint">
+	function suffleArrayApproach1(arr) {
+		for (let i = 0; i < arr.length; i++) {
+			let r = Math.floor(Math.random() * arr.length);
+			let temp = arr[i];
+			arr[i] = arr[r];
+			arr[r] = temp;
+		}
+		return arr;
+	}
+	</pre>
+	<h3>Analysis: </h4>
+	<h4>let arr = [1, 2, 3]</h4>
+	<h4>There're 3 possibilities (0, 1, 2) in generating a random number r in [0, 3), the total possibilities are 3^3 = 27.</h4>
+	<h4>However, the permutation of three numbers should be 3! = 6 which is not a factor of 27</h4>
+	<h4>It means some of the possibilities are repeated. The probability distribution of each number is not equal, so it's not random</h4>
+	<br/>
+
+	<h1>Approach 2</h1>
+	<h2>Generate a random number r in [1, 10000], and add it into the result array if the number doesn't exist</h2>
+	<h3>Step: </h3>
+	<h4>1. Create an empty set and empty result array</h4>
+	<h4>2. Generate a random number r in [1, 10000] until the length of the result array is 10000</h4>
+	<h4>3. If the number doesn't exist in the set, add the number into the result array and the set</h4>
+	<h4>4. If the number exists in the set, go to step 2</h4>
+	<pre class="prettyprint">
+	function suffleArrayApproach2(length) {
+		let result = [];
+		let set = new Set();
+
+		while (result.length < length) {
+			let r = 1 + Math.floor(Math.random() * length);
+			if (!set.has(r)) {
+				result.push(r);
+				set.add(r);
+			}
+		}
+		return result;
+	}
+	</pre>
+	<h3>Analysis: </h3>
+	<h3>Space complexity: </h3>
+	<h4>O(n), a set is created to record 10000(input length) elements</h4>
+	<h3>Time complexity: </h3>
+	<h4>Maximum: infinity if the random number already exists in the result array every time</h4>
+	<h4>Minimum: O(n) if the random number never exists in the result array every time</h4>
+	<h4>Average: O(n * ∑1/i) ≈ O(n * ln n)</h4>
+	<h3>Proof of average O(n): </h3>
+	<h4>If there are 6 numbers: [1, 2, 3, 4, 5, 6]</h4>
+	<h4>After the first number is generated</h4>
+	<h4>The probability that generating a second unique number is 5/6, so the expected value is 1/p which is 1/(5/6) = 6/5</h4>
+	<h4>O(n) = 1 + 6/5 to generate 2 different numbers</h4>
+	<h4>The probability that generating a third unique number is 4/6, so the expected value is 1/p which is 1/(4/6) = 6/4</h4>
+	<h4>O(n) = 1 + 6/5 + 6/4 to generate 3 different numbers</h4>
+	<h4>So, O(n) = 1 + 6/5 + 6/4 + 6/3 + 6/2 + 6/1 = 6 * ∑1/i to generate 6 different numbers</h4>
+	<h4>Put n = 10000, O(n) = 10000 * ∑1/i = 97876</h4>
+	<pre class="prettyprint">
+	function complexityCountApproach2(length) {
+		let result = [];
+		let set = new Set();
+		let count = 0;
+
+		while (result.length < length) {
+			count++;
+			let r = 1 + Math.floor(Math.random() * length);
+			if (!set.has(r)) {
+				result.push(r);
+				set.add(r);
+			}
+		}
+		return count;
+	}
+
+	function averageComplexityApproach2(times, length) {
+		let count = 0;
+		for (let i = 0; i < times; i++) {
+			count += complexityCountApproach2(length);
+		}
+		return count / times;
+	}
+
+	averageComplexityApproach2(100, 10000);
+	</pre>
+	<h4>This algorithm is to estimate the average O(n) per 100 times if we create an array with 10000 unique random numbers</h4>
+	<br/>
+    <button id="approach2">run approach 2</button>
+	<div id="resultApproach2"></div>
+	<br/>
+
+	<h1>Approach 3</h1>
+	<h2>Loop all the numbers, get the random index r in [0, i], and swap two numbers</h2>
+	<h3>Step: </h3>
+	<h4>1. let result = [1, 2, 3, ..., 10000]</h4>
+	<h4>2. Loop from the last elements</h4>
+	<h4>3. Generate a random index r in [0, Index of current number]</h4>
+	<h4>4. Swap two numbers: current number and number at r</h4>
+	<pre class="prettyprint">
+	// generate order array from 1 to n
+	function createOrderArray(length) {
+		let arr = [];
+		for (let i = 1; i <= length; i++) {
+			arr.push(i);
+		}
+		return arr;
+	}
+
+	function suffleArray(length) {
+		let result = createOrderArray(length);
+
+		for (let i = result.length - 1; i > 0; i--) {
+			let r = Math.floor(Math.random() * (i + 1));
+			let temp = result[r];
+			result[r] = result[i];
+			result[i] = temp;
+		}
+		return result;
+	}
+	</pre>
+	<h3>Analysis: </h3>
+	<h3>Space complexity: </h3>
+	<h4>O(1)</h4>
+	<h4>In this approach. After the number at index r swap with the number at i, the number at i now will never be swapped again</h4>
+	<h4>So, unlike approach 2, we don't need to create a set to handle the repeated number</h4>
+	<h3>Time complexity: </h3>
+	<h4>O(n)</h4>
+	<h4>In approach 2, the time complexity is higher than O(n) because sometimes the repeated numbers are generated</h4>
+	<h3>Proof of randomness: </h3>
+	<h4>Let arr = [1, 2, 3, 4, 5]</h4>
+	<h4>Loop from the last element (index: 4)</h4>
+	<h4>Generate a random index r in [0, 4] (eg. r = 2)</h4>
+	<h4>The Index can be [0, 4], which means every number has an equally 1/5 chance to go to the last position</h4>
+	<h4>Swap last element and the number at index r = 2</h4>
+	<h4>arr = [1, 2, 5, 4, 3]</h4>
+	<h4>Now, the index becomes 3</h4>
+	<h4>Generate a random index r in [0, 3] (eg. r = 0)</h4>
+	<h4>The Index can be [0, 3], which means every number has an equally 1/4 chance to go to position (index 3)</h4>
+	<h4>It seems that every number has an equally 1/4 chance ≠ 1/5 to go to position index 3</h4>
+	<h4>However, the probability that these four numbers are not selected in the previous round is 4/5</h4>
+	<h4>The combined probability is P(not selected by the previous round) * P(selected by this round) = 4/5 * 1/4 = 1/5</h4>
+	<h4>So, in i-th iteration of n element, the combined probability is P(not selected by previous round(s)) * P(selected by this round) = (n-1)/n * (n-2)/(n-1) * (n-3)/(n-2) * ... * (n-i+1)/(n-i+2) * 1/(n-i+1) = 1/n</h4>
+	<h4>Every number has an equal probability of 1/n to go to i-th position. So, it's random</h4>
+	<h4>The below button is to generate an array with 10000 unique random number</h4>
+	<button id="approach3">run approach 3</button>
+	<div id="resultApproach3"></div>
+	<br/>
+	<br/>
+
+    <script src="./eventHandler.js" ></script>
+</body>
+<style>
+	h4{
+		color: rgb(50, 46, 46);
+	}
+	pre.prettyprint {
+		border: none;
+		background-color:#f6f6f6;
+		border-radius: 8px;
+		padding:12px; 
+	}
+	#resultApproach2 {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	#subResultApproach2{
+		border: solid;
+		padding: 3px;
+		margin: 3px;
+	}
+	#resultApproach3 {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	#subResultApproach3{
+		border: solid;
+		padding: 5px;
+		margin: 3px;
+	}
+</style>
+</html>
